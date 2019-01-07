@@ -44,25 +44,29 @@ public class ContactsViewModel extends AndroidViewModel {
      */
     private void fetchContacts() {
         try {
-            Cursor cursor = getApplication().getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, null, null, null, ContactsContract.Contacts.DISPLAY_NAME_PRIMARY + " COLLATE NOCASE");
+            // added a selection query to get only contacts which have phone numbers and are the default ones
+            Cursor cursor = getApplication().getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, null, ContactsContract.Contacts.HAS_PHONE_NUMBER + " = ? AND in_default_directory = ? ", new String[]{"1", "1"}, ContactsContract.Contacts.DISPLAY_NAME_PRIMARY + " COLLATE NOCASE");
             if (cursor != null) {
                 ArrayList<Contact> contacts = new ArrayList<>();
                 while (cursor.moveToNext()) {
+//                    DatabaseUtils.dumpCurrentRow(cursor);
                     String contactId = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
-                    String hasPhone = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
+//                    String hasPhone = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
                     String name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME_PRIMARY));
-                    if ("1".equals(hasPhone) || Boolean.parseBoolean(hasPhone)) {
-                        // contact has phone number
-                        ArrayList<String> phones = getPhoneNumber(contactId);
-                        if (phones.size() > 0) {
-                            Contact contact = new Contact();
-                            contact.setName(name);
-                            contact.setEmail(getEmail(contactId));
-                            contact.setPhones(phones);
-                            // add this contact to the array list
-                            contacts.add(contact);
-                        }
+                    String label = cursor.getString(cursor.getColumnIndex("phonebook_label"));
+//                    if ("1".equals(hasPhone) || Boolean.parseBoolean(hasPhone)) {
+                    // contact has phone number
+                    ArrayList<String> phones = getPhoneNumber(contactId);
+                    if (phones.size() > 0) {
+                        Contact contact = new Contact();
+                        contact.setName(name);
+                        contact.setEmail(getEmail(contactId));
+                        contact.setPhones(phones);
+                        contact.setImageLetter(label);
+                        // add this contact to the array list
+                        contacts.add(contact);
                     }
+//                    }
                 }
                 cursor.close();
                 phonebook.postValue(contacts);
