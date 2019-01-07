@@ -9,6 +9,7 @@ public class Contact {
     private String name = "";
     private String email = "";
     private ArrayList<String> phones = new ArrayList<>();
+    private String imageLetter = "";
 
     public String getName() {
         return name;
@@ -32,5 +33,13 @@ public class Contact {
 
     public void setPhones(ArrayList<String> phones) {
         this.phones = phones;
+    }
+
+    public String getImageLetter() {
+        return imageLetter;
+    }
+
+    public void setImageLetter(String imageLetter) {
+        this.imageLetter = imageLetter;
     }
 }
