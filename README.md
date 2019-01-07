@@ -1,7 +1,5 @@
-# phonebook-contacts
+# Phonebook Contacts
 
-This sample uses the Loader Manger to fetch the contacts but as of Android P (API 28), Loader Managers are depreceated.
-See the link https://developer.android.com/guide/components/loaders
-
-# TODO 
-1. Need to convert this sample from loader manager to android architecture componants
+Load the phonebook contacts using
+1. Loaders (But deprecated as of Android P). See the link https://developer.android.com/guide/components/loaders
+2. View Model and Live data
