@@ -4,6 +4,7 @@ import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.MutableLiveData;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.telephony.PhoneNumberUtils;
@@ -44,8 +45,15 @@ public class ContactsViewModel extends AndroidViewModel {
      */
     private void fetchContacts() {
         try {
+            String[] projection = new String[]{
+                    ContactsContract.Contacts._ID,
+                    ContactsContract.Contacts.DISPLAY_NAME_PRIMARY,
+                    ContactsContract.Contacts.HAS_PHONE_NUMBER,
+                    "in_default_directory",
+                    "phonebook_label",
+            };
             // added a selection query to get only contacts which have phone numbers and are the default ones
-            Cursor cursor = getApplication().getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, null, ContactsContract.Contacts.HAS_PHONE_NUMBER + " = ? AND in_default_directory = ? ", new String[]{"1", "1"}, ContactsContract.Contacts.DISPLAY_NAME_PRIMARY + " COLLATE NOCASE");
+            Cursor cursor = getApplication().getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, projection, ContactsContract.Contacts.HAS_PHONE_NUMBER + " = ? AND in_default_directory = ? ", new String[]{"1", "1"}, ContactsContract.Contacts.DISPLAY_NAME_PRIMARY + " COLLATE NOCASE");
             if (cursor != null) {
                 ArrayList<Contact> contacts = new ArrayList<>();
                 while (cursor.moveToNext()) {
