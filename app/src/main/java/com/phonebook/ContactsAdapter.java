@@ -10,6 +10,9 @@ import com.phonebook.databinding.ListItemContactBinding;
 
 import java.util.List;
 
+/**
+ * adapter class to display the data on Recycler View
+ */
 public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Holder> {
     private List<Contact> contacts;
 

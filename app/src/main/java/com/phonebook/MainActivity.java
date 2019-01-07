@@ -1,6 +1,9 @@
 package com.phonebook;
 
 import android.Manifest;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
+import android.content.Intent;
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
@@ -27,6 +30,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private List<Contact> contacts;
     private final String permission = Manifest.permission.READ_CONTACTS;
     private static final int PERMISSION_CODE = 958;
+    public static final String TYPE_LOADER = "loaders";
+    public static final String TYPE_VIEW_MODEL = "viewModel";
+    private long startTime, endTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +47,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         // check for permission READ_CONTACTS
         if (EasyPermissions.hasPermissions(this, permission)) {
             // Already have permission, do the thing
-            loadContacts();
+            checkType();
         } else {
             // Do not have permissions, request them now
             EasyPermissions.requestPermissions(this, "Please allow the permission to use the functinality",
@@ -51,11 +57,52 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
     /**
+     * function to check the type to load the contacts
+     */
+    private void checkType() {
+        String type = TYPE_VIEW_MODEL;
+        Intent intent = getIntent();
+        if (intent != null) {
+            Bundle bundle = intent.getExtras();
+            if (bundle != null) {
+                type = bundle.getString("type", TYPE_VIEW_MODEL);
+            }
+        }
+
+        if (type.equals(TYPE_LOADER)) {
+            // loaders
+            loadContactsUsingLoader();
+        } else {
+            // view model
+            loadContactsUsingViewModel();
+        }
+    }
+
+    /**
      * initialize the loader to load the contacts
      */
-    private void loadContacts() {
+    private void loadContactsUsingLoader() {
+        startTime = System.currentTimeMillis();
         // initialize the loader
         getSupportLoaderManager().initLoader(0, null, this);
+    }
+
+    private void loadContactsUsingViewModel() {
+        startTime = System.currentTimeMillis();
+        ContactsViewModel viewModel = ViewModelProviders.of(this).get(ContactsViewModel.class);
+        viewModel.getContacts();
+
+        viewModel.phonebook.observe(this, new Observer<ArrayList<Contact>>() {
+            @Override
+            public void onChanged(@Nullable ArrayList<Contact> contacts) {
+                endTime = System.currentTimeMillis();
+                Toast.makeText(MainActivity.this, ">>>>>>>Time Took>>>>>>" + (endTime - startTime) + " milliseconds", Toast.LENGTH_SHORT).show();
+                if (contacts != null) {
+                    // set the adapter
+                    binding.list.setAdapter(new ContactsAdapter(contacts));
+                }
+            }
+        });
     }
 
     @NonNull
@@ -91,6 +138,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                     }
                 }
             }
+            endTime = System.currentTimeMillis();
+            Toast.makeText(MainActivity.this, ">>>>>>>Time Took>>>>>>" + (endTime - startTime) + " milliseconds", Toast.LENGTH_SHORT).show();
             // set the adapter
             binding.list.setAdapter(new ContactsAdapter(contacts));
         }
@@ -173,7 +222,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     public void onPermissionsGranted(int requestCode, @NonNull List<String> list) {
         if (requestCode == PERMISSION_CODE) {
             // permission granted
-            loadContacts();
+            checkType();
         }
     }
 

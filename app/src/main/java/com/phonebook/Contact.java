@@ -2,6 +2,9 @@ package com.phonebook;
 
 import java.util.ArrayList;
 
+/**
+ * Model class of contact
+ */
 public class Contact {
     private String name = "";
     private String email = "";
