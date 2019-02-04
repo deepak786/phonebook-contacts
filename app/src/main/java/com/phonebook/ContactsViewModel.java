@@ -4,11 +4,11 @@ import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.MutableLiveData;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.telephony.PhoneNumberUtils;
 
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -49,6 +49,7 @@ public class ContactsViewModel extends AndroidViewModel {
                     ContactsContract.Contacts._ID,
                     ContactsContract.Contacts.DISPLAY_NAME_PRIMARY,
                     ContactsContract.Contacts.HAS_PHONE_NUMBER,
+                    ContactsContract.Contacts.LOOKUP_KEY,
                     "in_default_directory",
                     "phonebook_label",
             };
@@ -62,6 +63,7 @@ public class ContactsViewModel extends AndroidViewModel {
 //                    String hasPhone = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
                     String name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME_PRIMARY));
                     String label = cursor.getString(cursor.getColumnIndex("phonebook_label"));
+                    String lookup = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.LOOKUP_KEY));
 //                    if ("1".equals(hasPhone) || Boolean.parseBoolean(hasPhone)) {
                     // contact has phone number
                     ArrayList<String> phones = getPhoneNumber(contactId);
@@ -71,6 +73,10 @@ public class ContactsViewModel extends AndroidViewModel {
                         contact.setEmail(getEmail(contactId));
                         contact.setPhones(phones);
                         contact.setImageLetter(label);
+                        contact.setLookUp(lookup);
+                        System.out.println(">>>>>" + lookup);
+                        System.out.println(">>>>>" + md5(lookup));
+                        contact.setKey(md5(lookup));
                         // add this contact to the array list
                         contacts.add(contact);
                     }
@@ -142,4 +148,20 @@ public class ContactsViewModel extends AndroidViewModel {
         }
         return phones;
     }
+
+    private String md5(String toEncrypt) {
+        try {
+            final MessageDigest digest = MessageDigest.getInstance("md5");
+            digest.update(toEncrypt.getBytes());
+            final byte[] bytes = digest.digest();
+            final StringBuilder sb = new StringBuilder();
+            for (byte aByte : bytes) {
+                sb.append(String.format("%02X", aByte));
+            }
+            return sb.toString().toLowerCase();
+        } catch (Exception exc) {
+            return "";
+        }
+    }
+
 }

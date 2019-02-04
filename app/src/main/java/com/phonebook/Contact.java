@@ -10,6 +10,8 @@ public class Contact {
     private String email = "";
     private ArrayList<String> phones = new ArrayList<>();
     private String imageLetter = "";
+    private String lookUp = "";
+    private String key = "";
 
     public String getName() {
         return name;
@@ -41,5 +43,21 @@ public class Contact {
 
     public void setImageLetter(String imageLetter) {
         this.imageLetter = imageLetter;
+    }
+
+    public String getLookUp() {
+        return lookUp;
+    }
+
+    public void setLookUp(String lookUp) {
+        this.lookUp = lookUp;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
     }
 }
